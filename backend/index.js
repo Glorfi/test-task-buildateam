@@ -40,29 +40,77 @@
 // app.listen(5000, () => {
 //   console.log('server started on port 5000');
 // });
+// index.js
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import { resolvers } from './graphql/resolvers.js';
 import { typeDefs } from './graphql/typeDefs.js';
+import { fetchInitialProducts } from './utils/fetchProducts.js';
 
-/**
- * Create an Apollo server instance.
- */
 const server = new ApolloServer({ typeDefs, resolvers });
 
-/**
- * Create an express server and apply the Apollo Server middleware
- */
 const app = express();
-server.start().then(() => {
-  server.applyMiddleware({ app });
-  app.listen({ port: 5000 }, () => {
-    console.log(
-      `Server is running at http://localhost:5000${server.graphqlPath}`
-    );
-  });
-});
 
-app.get('/', (req, res) => {
-  console.log('Apollo GraphQL Express server is ready');
-});
+server
+  .start()
+  .then(() => {
+    return server.executeOperation({
+      query: `
+        query {
+          getAllProducts {
+            bodyHTML
+            images {
+              src
+            }
+            id
+          }
+        }
+      `,
+    });
+  })
+  .then((res) => {
+    if (res.data.getAllProducts.length > 0) {
+      console.log('Number of products:', res.data.getAllProducts.length);
+      return;
+    } else {
+      console.log("You've got to fetch some data here");
+      return fetchInitialProducts().then((res) => {
+        const products = res.data.products.nodes;
+      //console.log(typeof products[0].bodyHtml);
+        return server.executeOperation({
+          query: `
+            mutation AddProducts($products: [ProductInput]) {
+              addProducts(products: $products) {
+                bodyHTML
+                id
+                images {
+                  src
+                }
+              }
+            }
+          `,
+          variables: {
+            products: products.map((product) => ({
+              bodyHTML: product.bodyHtml,
+              id: product.id,
+              images: product.images.nodes.map((image) => ({
+                src: image.src,
+              })),
+            })),
+          },
+        });
+      });
+      //  .then((res) => console.log(res));
+    }
+  })
+  .then(() => {
+    server.applyMiddleware({ app });
+    app.listen({ port: 5000 }, () => {
+      console.log(
+        `Server is running at http://localhost:5000${server.graphqlPath}`
+      );
+    });
+  })
+  .catch((error) => {
+    console.error('Error starting server:', error);
+  });

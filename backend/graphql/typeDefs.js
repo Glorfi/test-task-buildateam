@@ -14,4 +14,17 @@ export const typeDefs = gql`
   type Query {
     getAllProducts: [Product]
   }
+  type Mutation {
+    addProducts(products: [ProductInput]): [Product]
+  }
+
+  input ProductInput {
+    id: String!
+    bodyHTML: String!
+    images: [ImageInput]!
+  }
+
+  input ImageInput {
+    src: String!
+  }
 `;

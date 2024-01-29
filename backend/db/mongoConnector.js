@@ -5,8 +5,8 @@ import { productSchema } from './models/productSchema.js';
 mongoose.connect(
   'mongodb+srv://admin:admin@cluster0.t1gaslr.mongodb.net/?retryWrites=true&w=majority',
   {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+    // useNewUrlParser: true,
+    // useUnifiedTopology: true,
   }
 );
 

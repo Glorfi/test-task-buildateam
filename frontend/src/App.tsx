@@ -35,6 +35,7 @@ function App() {
       </HStack>
       <Grid
         width={'100%'}
+        minHeight={"calc(100vh - 75px)"}
         p={'24px'}
         gridTemplateColumns={'repeat(auto-fit, minmax(300px, 1fr))'}
         gap={'24px'}
