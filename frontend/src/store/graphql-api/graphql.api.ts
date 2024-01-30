@@ -3,9 +3,7 @@ import { graphqlRequestBaseQuery } from '@rtk-query/graphql-request-base-query';
 import { GraphQLClient, gql } from 'graphql-request';
 import { IGetAllProductResponse } from '../../interfaces/responses/getAllProducts';
 
-const client = new GraphQLClient('http://localhost:5000/graphql', {
-  headers: {},
-});
+const client = new GraphQLClient('http://localhost:5000/graphql');
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: graphqlRequestBaseQuery({ client }),
